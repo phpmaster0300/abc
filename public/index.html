@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Number Filter</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div class="header-left">
+                    <h1><i class="fab fa-whatsapp"></i> WhatsApp Number Filter</h1>
+                    <p>Check which mobile numbers have WhatsApp accounts</p>
+                </div>
+                <div class="header-right">
+                    <div class="user-menu">
+                        <div class="user-info">
+                            <i class="fas fa-user-circle"></i>
+                            <span id="userName">Loading...</span>
+                        </div>
+                        <button id="logoutBtn" class="btn btn-outline">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- WhatsApp Connection Status -->
+        <div class="connection-section">
+            <div class="status-card">
+                <div class="status-header">
+                    <h2><i class="fas fa-link"></i> WhatsApp Connection</h2>
+                    <button id="restartBtn" class="btn btn-secondary" style="display: none;">
+                        <i class="fas fa-redo"></i> Restart
+                    </button>
+                </div>
+                
+                <div id="connectionStatus" class="status-content">
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Initializing WhatsApp client...</span>
+                    </div>
+                    <div class="connection-actions" id="disconnectedActions" style="display: none; margin-top: 15px;">
+                        <button id="forceRestartBtn" class="btn btn-warning">
+                            <i class="fas fa-qrcode"></i> Regenerate QR Code
+                        </button>
+                    </div>
+                </div>
+
+                <!-- QR Code Section -->
+                <div id="qrSection" class="qr-section" style="display: none;">
+                    <h3><i class="fas fa-qrcode"></i> Scan QR Code</h3>
+                    <p>Open WhatsApp on your phone and scan this QR code:</p>
+                    <div class="qr-container">
+                        <img id="qrCode" src="" alt="QR Code" />
+                    </div>
+                    <div class="qr-instructions">
+                        <ol>
+                            <li>Open WhatsApp on your phone</li>
+                            <li>Tap Menu <i class="fas fa-ellipsis-v"></i> or Settings</li>
+                            <li>Tap Linked Devices</li>
+                            <li>Tap Link a Device</li>
+                            <li>Point your phone at this screen to capture the code</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Connected Status -->
+                <div id="connectedSection" class="connected-section" style="display: none;">
+                    <div class="success-message">
+                        <i class="fas fa-check-circle"></i>
+                        <span>WhatsApp Connected Successfully!</span>
+                    </div>
+                    <p>You can now check WhatsApp numbers.</p>
+                    <div class="connection-actions">
+                        <button id="disconnectBtn" class="btn btn-danger">
+                            <i class="fas fa-unlink"></i> Disconnect Device
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Number Input Section -->
+        <div class="input-section" id="inputSection" style="display: none;">
+            <div class="input-card">
+                <h2><i class="fas fa-mobile-alt"></i> Enter Numbers to Check</h2>
+                
+                <div class="input-methods">
+                    <div class="method-tabs">
+                        <button class="tab-btn active" data-tab="manual">Manual Input</button>
+                        <button class="tab-btn" data-tab="file">Upload File</button>
+                    </div>
+
+                    <!-- Manual Input -->
+                    <div class="tab-content active" id="manual">
+                        <textarea 
+                            id="numbersInput" 
+                            placeholder="Enter mobile numbers (one per line):\n+923001234567\n03001234567\n923001234567\n\nSupported formats:\n- With country code: +92 or 92\n- Without country code: 03xx\n- Any format will be auto-corrected"
+                            rows="10"
+                        ></textarea>
+                        <div class="input-info">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Enter up to 5000 numbers. One number per line.</span>
+                        </div>
+                    </div>
+
+                    <!-- File Upload -->
+                    <div class="tab-content" id="file">
+                        <div class="file-upload">
+                            <input type="file" id="fileInput" accept=".txt,.csv" />
+                            <label for="fileInput" class="file-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Choose file or drag & drop</span>
+                                <small>Supports .txt and .csv files</small>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="checkBtn" class="btn btn-primary" disabled>
+                        <i class="fas fa-search"></i> Check Numbers
+                    </button>
+                    <button id="clearBtn" class="btn btn-secondary">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <div class="results-card">
+                <div class="results-header">
+                    <h2><i class="fas fa-chart-bar"></i> Results</h2>
+                    <div class="export-buttons">
+                        <button id="exportValidBtn" class="btn btn-success">
+                            <i class="fas fa-download"></i> Export Valid Numbers
+                        </button>
+                        <button id="exportAllBtn" class="btn btn-secondary">
+                            <i class="fas fa-download"></i> Export All Results
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Simple Results Summary -->
+                <div class="results-summary">
+                    <div class="summary-stats">
+                         <div class="stat-item">
+                             <span class="stat-value" id="totalNumbers">0</span>
+                             <span class="stat-text">Total Numbers</span>
+                         </div>
+                         <div class="stat-item success">
+                             <span class="stat-value" id="whatsappNumbers">0</span>
+                             <span class="stat-text">WhatsApp Yes</span>
+                         </div>
+                         <div class="stat-item">
+                             <span class="stat-value" id="whatsappInactive">0</span>
+                             <span class="stat-text">WhatsApp No</span>
+                         </div>
+                         <div class="stat-item">
+                             <span class="stat-value" id="processingTime">0s</span>
+                             <span class="stat-text">Time</span>
+                         </div>
+                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <h3>Checking Numbers...</h3>
+                <p id="loadingText">Please wait while we check your numbers</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <span id="progressText">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
